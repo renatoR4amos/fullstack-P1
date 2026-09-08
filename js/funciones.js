@@ -1,5 +1,5 @@
 // funciones.js - script de la tienda nexustech
-// manejo de catalogo, carro y panel admin
+// catalogo, carro de compras y panel de administracion
 
 var productosDefecto = [
   { id: 1, nombre: "Mouse Logitech G203", precio: 19990, desc: "Sensor 8000 DPI con luces RGB", img: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&auto=format&fit=crop&q=80" },
@@ -17,6 +17,8 @@ function guardarProductos(l) { localStorage.setItem("productosNexus", JSON.strin
 function obtenerCarro() { var d = localStorage.getItem("carroNexus"); return d ? JSON.parse(d) : []; }
 function guardarCarro(l) { localStorage.setItem("carroNexus", JSON.stringify(l)); }
 function formatoCLP(v) { return "$" + Number(v).toLocaleString("es-CL"); }
+function esCorreoValido(c) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c); }
+
 function limpiarSpans() {
   var spans = document.querySelectorAll(".error-msg");
   for (var i = 0; i < spans.length; i++) spans[i].textContent = "";
@@ -25,21 +27,20 @@ function limpiarSpans() {
 function actualizarContadorCarro() {
   var badge = document.getElementById("cuentaCarro");
   if (!badge) return;
-  var items = obtenerCarro(); var total = 0;
+  var items = obtenerCarro(), total = 0;
   for (var i = 0; i < items.length; i++) total += items[i].cant;
   badge.textContent = total;
 }
 
 document.addEventListener("DOMContentLoaded", function() {
   actualizarContadorCarro();
-  var btnAutoUser = document.getElementById("btnAutoUser");
-  var btnAutoAdmin = document.getElementById("btnAutoAdmin");
-  if (btnAutoUser) btnAutoUser.onclick = function() {
+  var btnUser = document.getElementById("btnAutoUser"), btnAdmin = document.getElementById("btnAutoAdmin");
+  if (btnUser) btnUser.onclick = function() {
     document.getElementById("txtCorreo").value = "cliente@gmail.com";
     document.getElementById("txtClave").value = "1234";
     limpiarSpans();
   };
-  if (btnAutoAdmin) btnAutoAdmin.onclick = function() {
+  if (btnAdmin) btnAdmin.onclick = function() {
     document.getElementById("txtCorreo").value = "admin@gmail.com";
     document.getElementById("txtClave").value = "admin";
     limpiarSpans();
@@ -53,8 +54,17 @@ document.addEventListener("DOMContentLoaded", function() {
       var correo = document.getElementById("txtCorreo").value.trim();
       var clave = document.getElementById("txtClave").value;
       var err = false;
-      if (correo === "") { document.getElementById("errCorreo").textContent = "debes poner tu correo"; err = true; }
-      if (clave === "") { document.getElementById("errClave").textContent = "falta la clave secreta"; err = true; }
+      if (correo === "") {
+        document.getElementById("errCorreo").textContent = "debes poner tu correo";
+        err = true;
+      } else if (!esCorreoValido(correo)) {
+        document.getElementById("errCorreo").textContent = "el formato de correo no es valido";
+        err = true;
+      }
+      if (clave === "") {
+        document.getElementById("errClave").textContent = "falta la clave secreta";
+        err = true;
+      }
       if (err) return;
 
       if (correo === "admin@gmail.com" && clave === "admin") {
@@ -94,7 +104,8 @@ document.addEventListener("DOMContentLoaded", function() {
       var prec = parseInt(document.getElementById("adminPrecio").value, 10);
       var errSpan = document.getElementById("errAdmin");
       if (nom === "" || isNaN(prec) || prec <= 0) {
-        if (errSpan) errSpan.textContent = "debes poner un nombre y precio valido"; return;
+        if (errSpan) errSpan.textContent = "debes poner un nombre y precio valido";
+        return;
       }
       if (errSpan) errSpan.textContent = "";
 
@@ -115,11 +126,9 @@ document.addEventListener("DOMContentLoaded", function() {
 function pintarCatalogo() {
   var c = document.getElementById("contenedorProductos");
   if (!c) return;
-  var prods = obtenerProductos();
-  c.innerHTML = "";
+  var prods = obtenerProductos(); c.innerHTML = "";
   for (var i = 0; i < prods.length; i++) {
-    var p = prods[i];
-    var col = document.createElement("div");
+    var p = prods[i], col = document.createElement("div");
     col.className = "col-12 col-sm-6 col-lg-3";
     col.innerHTML = '<article class="tarjeta-prod h-100 d-flex flex-column justify-content-between">' +
                       '<div><img src="' + p.img + '" alt="' + p.nombre + '"><h3 class="h6 fw-bold mb-1">' + p.nombre + '</h3><p class="small text-muted mb-2">' + p.desc + '</p></div>' +
@@ -130,32 +139,26 @@ function pintarCatalogo() {
 }
 
 function agregarAlCarro(id) {
-  var prods = obtenerProductos(); var prod = null;
+  var prods = obtenerProductos(), prod = null;
   for (var i = 0; i < prods.length; i++) { if (prods[i].id === id) { prod = prods[i]; break; } }
   if (!prod) return;
-
-  var carro = obtenerCarro(); var existe = false;
+  var carro = obtenerCarro(), existe = false;
   for (var j = 0; j < carro.length; j++) {
     if (carro[j].id === id) { carro[j].cant += 1; existe = true; break; }
   }
   if (!existe) carro.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, cant: 1 });
-  guardarCarro(carro);
-  actualizarContadorCarro();
+  guardarCarro(carro); actualizarContadorCarro();
 }
 
 function pintarTablaCarro() {
-  var tb = document.getElementById("cuerpoCarro");
-  var tot = document.getElementById("totalCarro");
+  var tb = document.getElementById("cuerpoCarro"), tot = document.getElementById("totalCarro");
   if (!tb) return;
-  var carro = obtenerCarro();
-  tb.innerHTML = "";
-  var total = 0;
+  var carro = obtenerCarro(); tb.innerHTML = ""; var total = 0;
   if (carro.length === 0) {
     tb.innerHTML = '<tr><td colspan="4" class="text-center text-muted">tu carro esta vacio actualmente</td></tr>';
   } else {
     for (var i = 0; i < carro.length; i++) {
-      var sub = carro[i].precio * carro[i].cant;
-      total += sub;
+      var sub = carro[i].precio * carro[i].cant; total += sub;
       var tr = document.createElement("tr");
       tr.innerHTML = '<td>' + carro[i].nombre + '</td><td>' + formatoCLP(carro[i].precio) + '</td><td>' + carro[i].cant + '</td><td>' + formatoCLP(sub) + '</td>';
       tb.appendChild(tr);
@@ -167,11 +170,9 @@ function pintarTablaCarro() {
 function pintarTablaAdmin() {
   var tb = document.getElementById("cuerpoAdmin");
   if (!tb) return;
-  var prods = obtenerProductos();
-  tb.innerHTML = "";
+  var prods = obtenerProductos(); tb.innerHTML = "";
   for (var i = 0; i < prods.length; i++) {
-    var p = prods[i];
-    var tr = document.createElement("tr");
+    var p = prods[i], tr = document.createElement("tr");
     tr.innerHTML = '<td>' + p.nombre + '</td><td>' + formatoCLP(p.precio) + '</td><td>' +
                    '<button type="button" class="btn btn-sm btn-outline-info me-1" onclick="editarProductoAdmin(' + p.id + ')">Editar</button>' +
                    '<button type="button" class="btn btn-sm btn-outline-danger" onclick="borrarProductoAdmin(' + p.id + ')">Borrar</button></td>';
@@ -185,15 +186,13 @@ function editarProductoAdmin(id) {
     if (prods[i].id === id) {
       document.getElementById("adminId").value = prods[i].id;
       document.getElementById("adminNom").value = prods[i].nombre;
-      document.getElementById("adminPrecio").value = prods[i].precio;
-      break;
+      document.getElementById("adminPrecio").value = prods[i].precio; break;
     }
   }
 }
 
 function borrarProductoAdmin(id) {
-  var prods = obtenerProductos(); var nuevo = [];
+  var prods = obtenerProductos(), nuevo = [];
   for (var i = 0; i < prods.length; i++) { if (prods[i].id !== id) nuevo.push(prods[i]); }
-  guardarProductos(nuevo);
-  pintarTablaAdmin();
+  guardarProductos(nuevo); pintarTablaAdmin();
 }

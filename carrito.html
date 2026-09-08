@@ -26,31 +26,33 @@
   </nav>
 
   <main class="container my-4">
-    <section class="bloque-seccion">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h5 fw-bold mb-0">🛒 Tu Carro de Compras</h2>
-        <button type="button" id="btnVaciarCarro" class="btn btn-sm btn-outline-danger">Vaciar Carro</button>
-      </div>
+    <section>
+      <article class="bloque-seccion">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h5 fw-bold mb-0">🛒 Tu Carro de Compras</h2>
+          <button type="button" id="btnVaciarCarro" class="btn btn-sm btn-outline-danger">Vaciar Carro</button>
+        </div>
 
-      <div class="table-responsive mb-3">
-        <table class="table table-dark table-striped mb-0 align-middle">
-          <thead>
-            <tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th></tr>
-          </thead>
-          <tbody id="cuerpoCarro">
-            <tr><td colspan="4" class="text-center text-muted">tu carro esta vacio actualmente</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <div class="table-responsive mb-3">
+          <table class="table table-dark table-striped mb-0 align-middle">
+            <thead>
+              <tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th></tr>
+            </thead>
+            <tbody id="cuerpoCarro">
+              <tr><td colspan="4" class="text-center text-muted">tu carro esta vacio actualmente</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <div class="d-flex justify-content-between align-items-center">
-        <h3 class="h5 fw-bold mb-0">Total: <span id="totalCarro" class="text-info">$0</span></h3>
-        <button type="button" id="btnPagar" class="btn btn-success btn-sm fw-bold px-4">Pagar Pedido</button>
-      </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <h3 class="h5 fw-bold mb-0">Total: <span id="totalCarro" class="text-info">$0</span></h3>
+          <button type="button" id="btnPagar" class="btn btn-success btn-sm fw-bold px-4">Pagar Pedido</button>
+        </div>
 
-      <div id="avisoPago" class="alert alert-info mt-3 mb-0 d-none small">
-        Aviso: Este es un prototipo demostrativo , no se realiza ningun cobro real.
-      </div>
+        <div id="avisoPago" class="alert alert-info mt-3 mb-0 d-none small">
+          Aviso: Este es un prototipo demostrativo , no se realiza ningun cobro real.
+        </div>
+      </article>
     </section>
   </main>
 
